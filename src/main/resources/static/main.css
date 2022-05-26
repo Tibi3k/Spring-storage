@@ -1,0 +1,16 @@
+html{
+    color: red !important;
+}
+
+.navbarContainer{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    align-items: center;
+    flex-direction: column;
+}
+
+.navbar{
+    max-width: 1200px !important;
+    width: 100%;
+}
