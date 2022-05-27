@@ -1,5 +1,6 @@
-package com.solyo.raktar.model;
+package com.solyo.raktar.security;
 
+import com.solyo.raktar.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

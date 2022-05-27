@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:replace="general :: links">
+    <title>Title</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div th:insert="general :: header"></div>
+    <form action="#" th:action="@{/order/create}" th:object="${order}" method="post">
+        <div class="form-group">
+            <label for="category">Product</label>
+            <select class="form-control" id="category" th:field="*{productId}"  required="required">
+                <option th:each="product : ${products}" th:text="${product.name}" th:value="${product.id}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="amount">Quantity</label>
+            <input type="number" class="form-control" id="amount" placeholder="Amount"  required="required" th:field="*{quantity}">
+        </div>
+        <button type="submit" class="btn btn-primary">Create product-request</button>
+    </form>
+</section>
+</body>
+</html>

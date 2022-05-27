@@ -1,9 +1,12 @@
 package com.solyo.raktar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,6 +27,13 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CategoryID")
     private Category category;
+
+    private boolean isDeleted;
+
+    @JsonIgnore
+    @OneToMany(mappedBy="product")
+    private List<Order> orders;
+
     public Product(){}
 
     public Product(long id, Category category, int price, int quantity, String description, String name){

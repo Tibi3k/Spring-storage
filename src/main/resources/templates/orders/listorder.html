@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head th:replace="general :: links">
+    <title>Title</title>
+</head>
+<style>
+    .order{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin: 15px;
+        background-color: #F5F5F5;
+    }
+</style>
+<body>
+<section layout:fragment="content">
+    <div th:insert="general :: header"></div>
+    <div class="container" id="container">
+        <div th:if="${orders.isEmpty()}">
+            <h1>No orders available!</h1>
+        </div>
+        <div class="order" th:each="order : ${orders}" th:id="${order.id}">
+            <h3 th:text="'Product:' + ${order.product.name}"></h3>
+            <h3 th:text="'Price:' + ${order.product.price} + ' ft/db'"></h3>
+            <h3 th:text="'Amount:' + ${order.quantity} + 'db'"></h3>
+            <h3 th:text="'Total cost:' + ${order.totalPrice}"></h3>
+            <h3 th:text="'Added at: ' + ${order.creationTime}"></h3>
+            <h3 th:text="'Status: ' + ${order.status}"></h3>
+            <h3 th:if="${order?.transporterName} ne null" th:text="'Transporter name: ' + ${order?.transporterName}"></h3>
+            <form action="#" th:action="@{/order/delete/{id}(id=${order.id})}" th:if="${order.status}  == 'Created'"  method="post" sec:authorize="hasAuthority('worker')">
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
+            <form action="#" th:action="@{/order/take/{id}(id=${order.id})}" th:if="${order.status}  == 'Created'"  method="post" sec:authorize="hasAuthority('transporter')">
+                <button type="submit" class="btn btn-info">Take</button>
+            </form>
+            <form action="#" th:action="@{/order/abort/{id}(id=${order.id})}" th:if="${order.status}  == 'Taken'"  method="post" sec:authorize="hasAuthority('transporter')">
+                <button type="submit" class="btn btn-danger">Abort</button>
+            </form>
+            <form action="#" th:action="@{/order/complete/{id}(id=${order.id})}" th:if="${order.status}  == 'Taken'"  method="post" sec:authorize="hasAuthority('transporter')">
+                <button type="submit" class="btn btn-success">Complete</button>
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+    const backendUrl = "http://localhost:8080/orders/checknew";
+
+    $(document).ready(function(){
+        console.log('document ready')
+        console.log($(location).attr('pathname'))
+        if($(location).attr('pathname') === '/order/available'){
+            console.log('valiad path')
+            setInterval(    function (){
+                console.log('interval')
+                $.ajax({
+                    type: "GET",
+                    contentType: "application/json",
+                    url:backendUrl,
+                    success: function (data){
+                        console.log(data)
+                        if(data.length > 0){
+                            for(let i = 0; i < data.length; i++){
+                                let html = "";
+                                if($("#" + data[i].id).length === 0){
+                                    html = "      <div class=\"order\" id=\"" + data[i].id + "\">" +
+                                        "            <h3>Product:" + data[i].product.name + " </h3>" +
+                                        "            <h3>Price:" + data[i].product.price + " ft/db</h3>" +
+                                        "            <h3>Amount:" + data[i].quantity + "db</h3>" +
+                                        "            <h3>Total cost:" + data[i].totalPrice + "</h3>" +
+                                        "            <h3>Added at: " + data[i].creationTime + "</h3>" +
+                                        "            <h3>Status: " + data[i].status + "</h3>" +
+                                        "            <form action=\"http://localhost:8080/order/take/" + data[i].id + "\" method=\"post\">" +
+                                        "                <button type=\"submit\" class=\"btn btn-info\">Take</button>" +
+                                        "            </form>" +
+                                        "        </div>"
+                                    $("#container").append(html)
+                                }
+                            }
+                        }
+                    }
+                })
+            }, 5000)
+        }
+    })
+
+</script>
+</body>
+</html>

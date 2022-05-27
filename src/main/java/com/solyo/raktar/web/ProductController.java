@@ -29,18 +29,12 @@ public class ProductController {
     @GetMapping("/")
     public String ListAllProducts(Model model){
         var products= this.productRepository.findAll();
+        var categories = this.categoryRepository.findAll();
         model.addAttribute("products", products);
-        System.out.println(products);
+        model.addAttribute("categories", categories);
         return "listproduct";
     }
-    @GetMapping("/hello")
-    public String hello(Model model){
-        //return this.productRepository.findAll();
-        model.addAttribute("key", "FUCKU");
-        return "layout";
-    }
 
-    @Secured("admin")
     @RequestMapping("/createproduct")
     public String createProduct(Model model){
         var list = this.categoryRepository.findAll();
@@ -56,6 +50,7 @@ public class ProductController {
         newProduct.setDescription(product.getDescription());
         newProduct.setPrice(product.getPrice());
         newProduct.setQuantity(product.getQuantity());
+        newProduct.setDeleted(false);
         var category = this.categoryRepository.findCategoryByName(product.getCategory());
         newProduct.setCategory(category);
         this.productRepository.save(newProduct);
@@ -89,20 +84,28 @@ public class ProductController {
             return "redirect:/";
         }
         var existingDbProd = dbProd.get();
-        existingDbProd.setDescription(product.getDescription());
-        existingDbProd.setName(product.getName());
-        existingDbProd.setPrice(product.getPrice());
-        existingDbProd.setQuantity(product.getQuantity());
-        var category = this.categoryRepository.findCategoryByName(product.getCategory());
-        System.out.println("get cat" + category.toString());
-        existingDbProd.setCategory(category);
+        existingDbProd.setDeleted(true);
         this.productRepository.save(existingDbProd);
+        var newDbProd = new Product();
+        newDbProd.setDescription(product.getDescription());
+        newDbProd.setName(product.getName());
+        newDbProd.setPrice(product.getPrice());
+        newDbProd.setQuantity(product.getQuantity());
+        var category = this.categoryRepository.findCategoryByName(product.getCategory());
+        newDbProd.setCategory(category);
+        newDbProd.setDeleted(false);
+        this.productRepository.save(newDbProd);
         return "redirect:/";
     }
 
     @PostMapping("/product/delete/{id}")
     public String deleteProduct(@PathVariable long id){
-        this.productRepository.deleteById(id);
+        var existingProd = this.productRepository.findById(id);
+        if(existingProd.isEmpty())
+            return "redirect:/";
+        var oldProd = existingProd.get();
+        oldProd.setDeleted(true);
+        this.productRepository.save(oldProd);
         return "redirect:/";
     }
 }

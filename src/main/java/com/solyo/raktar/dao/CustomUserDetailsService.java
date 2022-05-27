@@ -1,6 +1,6 @@
 package com.solyo.raktar.dao;
 
-import com.solyo.raktar.model.CustomUserDetails;
+import com.solyo.raktar.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

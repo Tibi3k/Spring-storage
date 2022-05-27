@@ -6,7 +6,15 @@
 </head>
 <body>
     <div th:insert="general :: header"></div>
+    <div sec:authorize="hasAuthority('worker')" id="userIsAdmin"></div>
     <section layout:fragment="content">
+        <form class="form-inline m-1" id="searchform">
+            <label for="category" class="p-1">Category</label>
+            <select class="form-control m-1" id="category"  required="required">
+                <option th:each="category : ${categories}" th:text="${category.name}" th:value="${category.name}"></option>
+            </select>
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
         <table class="table">
             <thead>
             <tr>
@@ -19,7 +27,7 @@
                 <th scope="col">Actions</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody id="tbodycontainer">
             <tr th:each="product: ${products}">
                 <th scope="row" th:text="${productStat.index} + 1"></th>
                 <td th:text="${product.name}"></td>
@@ -28,14 +36,58 @@
                 <td th:text="${product.quantity}"></td>
                 <td th:text="${product.category.name}"></td>
                 <td>
-                    <a sec:authorize="hasAuthority('admin')" th:href="'products/edit/' + ${product.id}"  class="btn btn-warn">Edit</a>
-                    <form action="#" th:action="@{/product/delete/{id}(id=${product.id})}"  method="post" sec:authorize="hasAuthority('admin')">
-                        <button type="submit" class="btn btn-error">Delete</button>
+                    <a sec:authorize="hasAuthority('worker')" th:href="'products/edit/' + ${product.id}"  class="btn btn-warning">Edit</a>
+                    <form action="#" th:action="@{/product/delete/{id}(id=${product.id})}"  method="post" sec:authorize="hasAuthority('worker')">
+                        <button type="submit" class="btn btn-danger mt-1">Delete</button>
                     </form>
                 </td>
             </tr>
             </tbody>
         </table>
     </section>
+<script>
+    $(document).ready(function (){
+        console.log('document ready')
+        $("#searchform").submit(function (event){
+            event.preventDefault()
+            console.log('sent')
+            let name = $("#category").val()
+            $.ajax({
+                type: "GET",
+                url: `http://localhost:8080/product/filter?q=${name}`,
+                contentType: "application/json",
+                success: function (data) {
+                    console.log('success')
+                    console.log(data)
+                    if (data.length > 0) {
+                        let html = "";
+                        for (let i = 0; i < data.length; i++) {
+                            let newHtml = ""
+                            newHtml = "            <tr th:each=\"product: ${products}\">" +
+                                "                <th scope=\"row\">" + (i+1).toString() + "</th>" +
+                                "                <td>" + data[i].name + "</td>" +
+                                "                <td>" + data[i].description + "</td>" +
+                                "                <td>" + data[i].description + "</td>" +
+                                "                <td>" + data[i].price + "</td>" +
+                                "                <td>" + data[i].quantity + "</td>" +
+                                "                <td>" + data[i].category.name + "</td>"
+                                if($('#userIsAdmin').length) {
+                                   newHtml += "                <td>" +
+                                    "                    <a  href=\"products/edit/" + data[i].id+ "\"  class=\"btn btn-warning\">Edit</a>" +
+                                    "                    <form action=\"/product/delete/" + data[i].id + "\"  method=\"post\">" +
+                                    "                        <button type=\"submit\" class=\"btn btn-danger mt-1\">Delete</button>" +
+                                    "                    </form>" +
+                                    "                </td>" +
+                                    "            </tr>"
+                                }
+                                html += newHtml
+                        }
+                        $('#tbodycontainer').html(html)
+                    }
+                }
+            })
+        })
+    })
+</script>
 </body>
 </html>

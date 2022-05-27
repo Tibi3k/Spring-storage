@@ -45,11 +45,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception{
         http.authorizeRequests()
-                .antMatchers("/createproduct").hasAuthority("admin")
-                .antMatchers("/createcategory").hasAuthority("admin")
-                .antMatchers("/products/**").hasAuthority("admin")
-                .antMatchers("/orders/**").hasAuthority("ADMIN")
-                .antMatchers("/cart/**").hasAuthority("USER")
+                .antMatchers("/createproduct").hasAuthority("worker")
+                .antMatchers("/createcategory").hasAuthority("worker")
+                .antMatchers("/createorder").hasAuthority("worker")
+                .antMatchers("/vieworder").hasAuthority("worker")
+                .antMatchers("/order/my").hasAuthority("transporter")
+                .antMatchers("/order/available").hasAuthority("transporter")
                 .antMatchers("/", "/**").permitAll();
 
         http.formLogin().permitAll()

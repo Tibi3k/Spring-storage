@@ -9,11 +9,9 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long>{
 
-//    @Query("SELECT p FROM Product p WHERE p.category.name=:categoryName")
-//    List<Product> findByCategoryName(@Param("categoryName") String categoryName);
-
-    List<Product> findByPriceGreaterThan(double limit);
-
-    @Query("SELECT p from Product p")
+    @Query("SELECT p from Product p where p.isDeleted = false")
     List<Product> findAll();
+
+    @Query("select p from Product  p where p.category.name = :name and p.isDeleted = false")
+    List<Product> findByCategoryName(String name);
 }
